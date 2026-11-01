@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "616388693402",
+    "firebase_url": "https://my-db-1b4c6-default-rtdb.firebaseio.com",
+    "project_id": "my-db-1b4c6",
+    "storage_bucket": "my-db-1b4c6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:616388693402:android:328574f5b321b4bd573e23",
+        "android_client_info": {
+          "package_name": "com.example.eventa_hub_final_project_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXdfupmVIoKRVOsu2iV2ep6vZTrAx3jKI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
