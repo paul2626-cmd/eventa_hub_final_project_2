@@ -1,0 +1,5 @@
+
+
+cp CODESTYLE.md AGENTS.md
+
+SYSTEM OVERVIEW: @SPEC.md
