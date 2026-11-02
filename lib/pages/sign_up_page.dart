@@ -56,8 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
     User? createdUser;
 
     try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailField.text.trim(),
         password: passwordField.text,
       );
@@ -105,9 +104,7 @@ class _SignUpPageState extends State<SignUpPage> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(readableError(error))),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(readableError(error))));
       }
     } finally {
       if (mounted) {
@@ -121,10 +118,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.signUpTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text(AppStrings.signUpTitle), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -196,13 +190,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 validator: (value) {
                   // 10 to 13 digits.
-                  final digits = value?.trim() ?? '';
-                  if (!RegExp(r'^\d{10,13}$').hasMatch(digits)) {
+                  final pattern = RegExp(r'^\d{10,13}$');
+                  if (value == null || !pattern.hasMatch(value.trim())) {
                     return AppStrings.invalidContactNumber;
-                  }
-                  // 13 digits is the +63 form, so it must keep the 63 prefix.
-                  if (digits.length == 13 && !digits.startsWith('63')) {
-                    return AppStrings.contactNumberMustStartWith63;
                   }
                   return null;
                 },
@@ -217,11 +207,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 validator: (value) {
                   // Gmail or a school address that ends in .edu / .edu.ph.
-                  final pattern = RegExp(
-                    r'^[\w.+-]+@(gmail\.com|[\w-]+(\.[\w-]+)*\.edu(\.ph)?)$',
-                  );
-                  if (value == null ||
-                      !pattern.hasMatch(value.trim().toLowerCase())) {
+                  final pattern = RegExp(r'^[\w.+-]+@(gmail\.com|[\w-]+(\.[\w-]+)*\.edu(\.ph)?)$');
+                  if (value == null || !pattern.hasMatch(value.trim().toLowerCase())) {
                     return AppStrings.invalidEmail;
                   }
                   return null;
@@ -235,14 +222,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   labelText: AppStrings.passwordLabel,
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    tooltip: obscurePassword
-                        ? AppStrings.showPassword
-                        : AppStrings.hidePassword,
-                    icon: Icon(
-                      obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
+                    tooltip: obscurePassword ? AppStrings.showPassword : AppStrings.hidePassword,
+                    icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
                     onPressed: () {
                       setState(() {
                         obscurePassword = !obscurePassword;
@@ -269,14 +250,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   labelText: AppStrings.confirmPasswordLabel,
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    tooltip: obscureConfirm
-                        ? AppStrings.showPassword
-                        : AppStrings.hidePassword,
-                    icon: Icon(
-                      obscureConfirm
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
+                    tooltip: obscureConfirm ? AppStrings.showPassword : AppStrings.hidePassword,
+                    icon: Icon(obscureConfirm ? Icons.visibility_off : Icons.visibility),
                     onPressed: () {
                       setState(() {
                         obscureConfirm = !obscureConfirm;
