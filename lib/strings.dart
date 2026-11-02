@@ -16,11 +16,22 @@ class AppStrings {
 
   // Sign up
   static const signUpTitle = 'Create account';
-  static const nameLabel = 'Display name';
+  static const firstNameLabel = 'First name';
+  static const lastNameLabel = 'Last name';
+  static const studentNumberLabel = 'Student number';
+  static const contactNumberLabel = 'Contact number';
+  static const schoolEmailLabel = 'School email or Gmail';
   static const confirmPasswordLabel = 'Confirm password';
   static const createAccount = 'Create account';
   static const passwordMismatch = 'Passwords do not match.';
-  static const nameRequired = 'Enter your name.';
+  static const firstNameRequired = 'Enter your first name.';
+  static const lastNameRequired = 'Enter your last name.';
+  static const invalidStudentNumber =
+      'Student number must be exactly 10 digits.';
+  static const invalidContactNumber = 'Contact number must be 10 to 13 digits.';
+  static const studentNumberTaken = 'That student number is already registered.';
+  static const strongPassword =
+      'Use 8+ characters with a capital letter, a small letter, a number, and a special character.';
   static String inDays(int days) => 'In $days days';
   static String reminderLead(int minutes) => 'Reminder lead time: $minutes minutes';
 
@@ -85,7 +96,7 @@ class AppStrings {
   static const wrongPassword = 'Wrong password. Try again.';
   static const invalidEmail = 'That email address is not valid.';
   static const emailInUse = 'That email is already in use.';
-  static const weakPassword = 'Password must be at least 6 characters.';
+  static const weakPassword = 'Password is too weak. Try a longer one.';
   static const userNotFound = 'No account found for that email.';
   static const networkError = 'Network error. Check your connection.';
   static const tooManyRequests = 'Too many attempts. Try again later.';

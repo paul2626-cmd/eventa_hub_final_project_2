@@ -140,8 +140,10 @@ class _LoginPageState extends State<LoginPage> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  // Hardcoded Gmail-only check.
-                  final pattern = RegExp(r'^[\w.+-]+@gmail\.com$');
+                  // Same rule as sign up: Gmail or a .edu / .edu.ph address.
+                  final pattern = RegExp(
+                    r'^[\w.+-]+@(gmail\.com|[\w-]+(\.[\w-]+)*\.edu(\.ph)?)$',
+                  );
                   if (value == null ||
                       !pattern.hasMatch(value.trim().toLowerCase())) {
                     return AppStrings.invalidEmail;

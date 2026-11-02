@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../helpers/error_helpers.dart';
 import '../strings.dart';
@@ -15,7 +16,10 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
-  final nameField = TextEditingController();
+  final firstNameField = TextEditingController();
+  final lastNameField = TextEditingController();
+  final studentNumberField = TextEditingController();
+  final contactField = TextEditingController();
   final emailField = TextEditingController();
   final passwordField = TextEditingController();
   final confirmField = TextEditingController();
@@ -25,7 +29,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   void dispose() {
-    nameField.dispose();
+    firstNameField.dispose();
+    lastNameField.dispose();
+    studentNumberField.dispose();
+    contactField.dispose();
     emailField.dispose();
     passwordField.dispose();
     confirmField.dispose();
@@ -41,28 +48,62 @@ class _SignUpPageState extends State<SignUpPage> {
       isLoading = true;
     });
 
+    final firstName = firstNameField.text.trim();
+    final lastName = lastNameField.text.trim();
+    final fullName = '$firstName $lastName';
+    final studentNumber = studentNumberField.text.trim();
+    final firestore = FirebaseFirestore.instance;
+    User? createdUser;
+
     try {
       final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailField.text.trim(),
         password: passwordField.text,
       );
+      createdUser = credential.user;
+      final uid = credential.user!.uid;
 
-      final user = credential.user!;
-      await user.updateDisplayName(nameField.text.trim());
+      // One student number can only be used once.
+      await firestore.runTransaction((transaction) async {
+        final numberDoc = await transaction.get(
+          firestore.collection('studentNumbers').doc(studentNumber),
+        );
+        if (numberDoc.exists) {
+          throw Exception(AppStrings.studentNumberTaken);
+        }
 
-      // Profile document for the signed-in student.
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'displayName': nameField.text.trim(),
-        'email': emailField.text.trim(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'reminderLeadMinutes': 60,
+        transaction.set(firestore.collection('users').doc(uid), {
+          'firstName': firstName,
+          'lastName': lastName,
+          'displayName': fullName,
+          'studentNumber': studentNumber,
+          'contactNumber': contactField.text.trim(),
+          'email': emailField.text.trim(),
+          'createdAt': FieldValue.serverTimestamp(),
+          'reminderLeadMinutes': 60,
+        });
+        transaction.set(numberDoc.reference, {
+          'uid': uid,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
       });
+
+      await credential.user!.updateDisplayName(fullName);
 
       if (mounted) {
         Navigator.pop(context);
       }
     } catch (error) {
+      // Do not leave a half-made account behind.
+      if (createdUser != null) {
+        try {
+          await createdUser.delete();
+        } catch (_) {
+          // Ignore: the account may already be gone.
+        }
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(readableError(error))),
@@ -92,15 +133,72 @@ class _SignUpPageState extends State<SignUpPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
-                controller: nameField,
+                controller: firstNameField,
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
-                  labelText: AppStrings.nameLabel,
+                  labelText: AppStrings.firstNameLabel,
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return AppStrings.nameRequired;
+                    return AppStrings.firstNameRequired;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: lastNameField,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: AppStrings.lastNameLabel,
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return AppStrings.lastNameRequired;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: studentNumberField,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
+                decoration: const InputDecoration(
+                  labelText: AppStrings.studentNumberLabel,
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  // Exactly 10 digits.
+                  final pattern = RegExp(r'^\d{10}$');
+                  if (value == null || !pattern.hasMatch(value.trim())) {
+                    return AppStrings.invalidStudentNumber;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: contactField,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(13),
+                ],
+                decoration: const InputDecoration(
+                  labelText: AppStrings.contactNumberLabel,
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  // 10 to 13 digits.
+                  final pattern = RegExp(r'^\d{10,13}$');
+                  if (value == null || !pattern.hasMatch(value.trim())) {
+                    return AppStrings.invalidContactNumber;
                   }
                   return null;
                 },
@@ -110,12 +208,14 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: emailField,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
-                  labelText: AppStrings.emailLabel,
+                  labelText: AppStrings.schoolEmailLabel,
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  // Hardcoded Gmail-only check.
-                  final pattern = RegExp(r'^[\w.+-]+@gmail\.com$');
+                  // Gmail or a school address that ends in .edu / .edu.ph.
+                  final pattern = RegExp(
+                    r'^[\w.+-]+@(gmail\.com|[\w-]+(\.[\w-]+)*\.edu(\.ph)?)$',
+                  );
                   if (value == null ||
                       !pattern.hasMatch(value.trim().toLowerCase())) {
                     return AppStrings.invalidEmail;
@@ -147,8 +247,12 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || value.length < 6) {
-                    return AppStrings.weakPassword;
+                  // 8+ characters: capital, small, number, special.
+                  final pattern = RegExp(
+                    r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$',
+                  );
+                  if (value == null || !pattern.hasMatch(value)) {
+                    return AppStrings.strongPassword;
                   }
                   return null;
                 },
