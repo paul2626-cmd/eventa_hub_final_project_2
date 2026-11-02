@@ -29,6 +29,8 @@ class AppStrings {
   static const invalidStudentNumber =
       'Student number must be exactly 10 digits.';
   static const invalidContactNumber = 'Contact number must be 10 to 13 digits.';
+  static const contactNumberMustStartWith63 =
+      'A 13-digit contact number must start with 63.';
   static const studentNumberTaken = 'That student number is already registered.';
   static const strongPassword =
       'Use 8+ characters with a capital letter, a small letter, a number, and a special character.';

@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../helpers/date_helpers.dart';
 import '../helpers/error_helpers.dart';
 import '../services/notification_service.dart';
@@ -84,12 +83,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                 final upcoming = _upcoming(docs);
                 final history = _history(docs);
 
-                return TabBarView(
-                  children: [
-                    _buildUpcoming(upcoming),
-                    _buildHistory(history),
-                  ],
-                );
+                return TabBarView(children: [_buildUpcoming(upcoming), _buildHistory(history)]);
               },
             ),
           ),
@@ -101,36 +95,34 @@ class _MyEventsPageState extends State<MyEventsPage> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _upcoming(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
-    final result = docs.where((doc) {
-      final endAt = (doc.data()['eventEndAt'] as Timestamp).toDate();
-      return endAt.isAfter(DateTime.now());
-    }).toList()
-      ..sort((a, b) {
-        final aStart = (a.data()['eventStartAt'] as Timestamp).toDate();
-        final bStart = (b.data()['eventStartAt'] as Timestamp).toDate();
-        return aStart.compareTo(bStart);
-      });
+    final result =
+        docs.where((doc) {
+          final endAt = (doc.data()['eventEndAt'] as Timestamp).toDate();
+          return endAt.isAfter(DateTime.now());
+        }).toList()..sort((a, b) {
+          final aStart = (a.data()['eventStartAt'] as Timestamp).toDate();
+          final bStart = (b.data()['eventStartAt'] as Timestamp).toDate();
+          return aStart.compareTo(bStart);
+        });
     return result;
   }
 
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _history(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
-    final result = docs.where((doc) {
-      final endAt = (doc.data()['eventEndAt'] as Timestamp).toDate();
-      return !endAt.isAfter(DateTime.now());
-    }).toList()
-      ..sort((a, b) {
-        final aEnd = (a.data()['eventEndAt'] as Timestamp).toDate();
-        final bEnd = (b.data()['eventEndAt'] as Timestamp).toDate();
-        return bEnd.compareTo(aEnd);
-      });
+    final result =
+        docs.where((doc) {
+          final endAt = (doc.data()['eventEndAt'] as Timestamp).toDate();
+          return !endAt.isAfter(DateTime.now());
+        }).toList()..sort((a, b) {
+          final aEnd = (a.data()['eventEndAt'] as Timestamp).toDate();
+          final bEnd = (b.data()['eventEndAt'] as Timestamp).toDate();
+          return bEnd.compareTo(aEnd);
+        });
     return result;
   }
 
-  Widget _buildUpcoming(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-  ) {
+  Widget _buildUpcoming(List<QueryDocumentSnapshot<Map<String, dynamic>>> docs) {
     if (docs.isEmpty) {
       return Center(
         child: Padding(
@@ -140,10 +132,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
             children: [
               const Icon(Icons.event_available, size: 56),
               const SizedBox(height: 12),
-              const Text(
-                AppStrings.noRegistrations,
-                textAlign: TextAlign.center,
-              ),
+              const Text(AppStrings.noRegistrations, textAlign: TextAlign.center),
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: widget.onBrowse,
@@ -175,11 +164,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                 children: [
                   SizedBox(
                     width: 110,
-                    child: _cardImage(
-                      context,
-                      eventId,
-                      data['eventImageUrl'] as String? ?? '',
-                    ),
+                    child: _cardImage(context, eventId, data['eventImageUrl'] as String? ?? ''),
                   ),
                   Expanded(
                     child: Padding(
@@ -194,12 +179,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          Text(
-                            '${formatEventDate(startAt)} • ${formatEventTime(startAt)}',
-                          ),
-                          Text(
-                            '${data['venueName'] ?? ''} • ${countdownLabel(startAt)}',
-                          ),
+                          Text('${formatEventDate(startAt)} • ${formatEventTime(startAt)}'),
+                          Text('${data['venueName'] ?? ''} • ${countdownLabel(startAt)}'),
                           Row(
                             children: [
                               const Spacer(),
@@ -223,9 +204,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
-  Widget _buildHistory(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-  ) {
+  Widget _buildHistory(List<QueryDocumentSnapshot<Map<String, dynamic>>> docs) {
     if (docs.isEmpty) {
       return const Center(child: Text(AppStrings.noHistory));
     }
@@ -251,11 +230,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                 children: [
                   SizedBox(
                     width: 110,
-                    child: _cardImage(
-                      context,
-                      eventId,
-                      data['eventImageUrl'] as String? ?? '',
-                    ),
+                    child: _cardImage(context, eventId, data['eventImageUrl'] as String? ?? ''),
                   ),
                   Expanded(
                     child: Padding(
@@ -270,13 +245,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          Text(
-                            '${formatEventDate(startAt)} • ${data['venueName'] ?? ''}',
-                          ),
-                          Text(
-                            data['category'] as String? ??
-                                AppStrings.unknownCategory,
-                          ),
+                          Text('${formatEventDate(startAt)} • ${data['venueName'] ?? ''}'),
+                          Text(data['category'] as String? ?? AppStrings.unknownCategory),
                         ],
                       ),
                     ),
@@ -297,13 +267,9 @@ class _MyEventsPageState extends State<MyEventsPage> {
     }
 
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('events')
-          .doc(eventId)
-          .snapshots(),
+      stream: FirebaseFirestore.instance.collection('events').doc(eventId).snapshots(),
       builder: (context, snapshot) {
-        final imageUrl =
-            snapshot.data?.data()?['imageUrl'] as String? ?? savedImageUrl;
+        final imageUrl = snapshot.data?.data()?['imageUrl'] as String? ?? savedImageUrl;
         return _imageBox(context, imageUrl);
       },
     );
@@ -339,9 +305,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
     }
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => EventDetailsPage(eventId: eventId),
-      ),
+      MaterialPageRoute(builder: (context) => EventDetailsPage(eventId: eventId)),
     );
   }
 
@@ -351,9 +315,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text(AppStrings.cancelRegistration),
-          content: Text(
-            '${AppStrings.cancelConfirm} ${data['eventName'] ?? ''}?',
-          ),
+          content: Text('${AppStrings.cancelConfirm} ${data['eventName'] ?? ''}?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -379,15 +341,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
       await RegistrationService.cancel(uid: uid, eventId: eventId);
       await NotificationService.cancelReminder(eventId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(AppStrings.cancelSuccess)),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text(AppStrings.cancelSuccess)));
       }
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(readableError(error))),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(readableError(error))));
       }
     }
   }

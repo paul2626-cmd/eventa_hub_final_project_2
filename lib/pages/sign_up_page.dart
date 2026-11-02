@@ -196,9 +196,13 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 validator: (value) {
                   // 10 to 13 digits.
-                  final pattern = RegExp(r'^\d{10,13}$');
-                  if (value == null || !pattern.hasMatch(value.trim())) {
+                  final digits = value?.trim() ?? '';
+                  if (!RegExp(r'^\d{10,13}$').hasMatch(digits)) {
                     return AppStrings.invalidContactNumber;
+                  }
+                  // 13 digits is the +63 form, so it must keep the 63 prefix.
+                  if (digits.length == 13 && !digits.startsWith('63')) {
+                    return AppStrings.contactNumberMustStartWith63;
                   }
                   return null;
                 },
