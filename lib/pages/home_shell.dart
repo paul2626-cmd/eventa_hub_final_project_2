@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import '../navbar_drawer/navbar_menu.dart';
 import '../services/notification_service.dart';
-import '../strings.dart';
 import 'event_list_page.dart';
 import 'my_events_page.dart';
 import 'profile_page.dart';
@@ -82,15 +81,15 @@ class _HomeShellState extends State<HomeShell> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.event),
-            label: AppStrings.eventsTab,
+            label: 'Events',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border),
-            label: AppStrings.myEventsTab,
+            label: 'My Events',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: AppStrings.profileTab,
+            label: 'Profile',
           ),
         ],
       ),
@@ -99,11 +98,11 @@ class _HomeShellState extends State<HomeShell> {
 
   String _title() {
     if (selectedIndex == 1) {
-      return AppStrings.myEventsTab;
+      return 'My Events';
     }
     if (selectedIndex == 2) {
-      return AppStrings.profileTab;
+      return 'Profile';
     }
-    return AppStrings.appName;
+    return 'EventHub';
   }
 }

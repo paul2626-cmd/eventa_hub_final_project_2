@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../helpers/error_helpers.dart';
-import '../strings.dart';
 import 'sign_up_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
   final emailField = TextEditingController();
   final passwordField = TextEditingController();
+  final resetField = TextEditingController();
   bool isLoading = false;
   bool obscurePassword = true;
 
@@ -24,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     emailField.dispose();
     passwordField.dispose();
+    resetField.dispose();
     super.dispose();
   }
 
@@ -58,26 +59,26 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> sendResetEmail() async {
-    final resetField = TextEditingController(text: emailField.text.trim());
+    resetField.text = emailField.text.trim();
 
     final email = await showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(AppStrings.forgotPassword),
+          title: const Text('Forgot password?'),
           content: TextField(
             controller: resetField,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: AppStrings.emailLabel),
+            decoration: const InputDecoration(labelText: 'Email'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(AppStrings.no),
+              child: const Text('No'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, resetField.text.trim()),
-              child: const Text(AppStrings.sendResetLink),
+              child: const Text('Send reset link'),
             ),
           ],
         );
@@ -92,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(AppStrings.resetEmailSent)),
+          const SnackBar(content: Text('Password reset email sent. Check your inbox.')),
         );
       }
     } catch (error) {
@@ -108,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.appName),
+        title: const Text('EventHub'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -127,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                AppStrings.loginTitle,
+                'Log in',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
@@ -136,17 +137,16 @@ class _LoginPageState extends State<LoginPage> {
                 controller: emailField,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
-                  labelText: AppStrings.emailLabel,
+                  labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  // Same rule as sign up: Gmail or a .edu / .edu.ph address.
-                  final pattern = RegExp(
-                    r'^[\w.+-]+@(gmail\.com|[\w-]+(\.[\w-]+)*\.edu(\.ph)?)$',
-                  );
-                  if (value == null ||
-                      !pattern.hasMatch(value.trim().toLowerCase())) {
-                    return AppStrings.invalidEmail;
+                  // Same rule as sign up: only needs an @.
+                  if (value == null || value.trim().isEmpty) {
+                    return 'This field is required.';
+                  }
+                  if (!value.contains('@')) {
+                    return 'Enter a valid email.';
                   }
                   return null;
                 },
@@ -156,12 +156,12 @@ class _LoginPageState extends State<LoginPage> {
                 controller: passwordField,
                 obscureText: obscurePassword,
                 decoration: InputDecoration(
-                  labelText: AppStrings.passwordLabel,
+                  labelText: 'Password',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     tooltip: obscurePassword
-                        ? AppStrings.showPassword
-                        : AppStrings.hidePassword,
+                        ? 'Show password'
+                        : 'Hide password',
                     icon: Icon(
                       obscurePassword
                           ? Icons.visibility_off
@@ -176,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppStrings.wrongPassword;
+                    return 'This field is required.';
                   }
                   return null;
                 },
@@ -190,11 +190,11 @@ class _LoginPageState extends State<LoginPage> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text(AppStrings.loginTitle),
+                    : const Text('Log in'),
               ),
               TextButton(
                 onPressed: isLoading ? null : sendResetEmail,
-                child: const Text(AppStrings.forgotPassword),
+                child: const Text('Forgot password?'),
               ),
               const SizedBox(height: 8),
               TextButton(
@@ -208,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       },
-                child: const Text(AppStrings.noAccount),
+                child: const Text("Don't have an account? Sign up"),
               ),
             ],
           ),

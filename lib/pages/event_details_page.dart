@@ -10,7 +10,6 @@ import '../helpers/event_helpers.dart';
 import '../helpers/maps_helper.dart';
 import '../services/notification_service.dart';
 import '../services/registration_service.dart';
-import '../strings.dart';
 
 class EventDetailsPage extends StatefulWidget {
   const EventDetailsPage({super.key, required this.eventId});
@@ -59,7 +58,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       }
 
       if (mounted) {
-        _showMessage(AppStrings.registrationSuccess);
+        _showMessage('You are registered. See you there!');
       }
     } catch (error) {
       if (mounted) {
@@ -79,16 +78,16 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(AppStrings.cancelRegistration),
-          content: Text('${AppStrings.cancelConfirm} $eventName?'),
+          title: const Text('Cancel Registration'),
+          content: Text('Cancel your registration for $eventName?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text(AppStrings.no),
+              child: const Text('No'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text(AppStrings.yes),
+              child: const Text('Yes'),
             ),
           ],
         );
@@ -107,7 +106,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       await RegistrationService.cancel(uid: uid, eventId: widget.eventId);
       await NotificationService.cancelReminder(widget.eventId);
       if (mounted) {
-        _showMessage(AppStrings.cancelSuccess);
+        _showMessage('Registration cancelled.');
       }
     } catch (error) {
       if (mounted) {
@@ -160,7 +159,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.eventDetails),
+        title: const Text('Event Details'),
         centerTitle: true,
       ),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -175,13 +174,13 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(AppStrings.couldNotLoadEvents),
+                  const Text('Could not load events.'),
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {});
                     },
-                    child: const Text(AppStrings.retry),
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
@@ -190,7 +189,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
           final event = eventSnapshot.data!.data();
           if (event == null) {
-            return const Center(child: Text(AppStrings.eventCancelled));
+            return const Center(child: Text('Event cancelled'));
           }
 
           return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -260,7 +259,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                   Chip(
                     label: Text(
                       event['category'] as String? ??
-                          AppStrings.unknownCategory,
+                          'Uncategorized',
                     ),
                   ),
                 ],
@@ -288,11 +287,11 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 OutlinedButton.icon(
                   onPressed: () => openInMaps(geo),
                   icon: const Icon(Icons.map_outlined),
-                  label: const Text(AppStrings.openInMaps),
+                  label: const Text('Open in Maps'),
                 ),
               const SizedBox(height: 16),
               Text(
-                AppStrings.description,
+                'Description',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 4),
@@ -301,7 +300,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               if (isRegistered && !ended)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text(AppStrings.reminder),
+                  title: const Text('Remind me 1 hour before'),
                   value: registration?['reminderEnabled'] != false,
                   onChanged: isBusy
                       ? null
@@ -310,7 +309,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               if (isRegistered && !NotificationService.remindersAllowed)
                 const Padding(
                   padding: EdgeInsets.only(bottom: 8),
-                  child: Text(AppStrings.remindersOff),
+                  child: Text('Reminders are off. Enable notifications in your phone settings.'),
                 ),
               _buildActionButtons(ended, full, isRegistered, event),
             ],
@@ -329,7 +328,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     if (ended) {
       return const ElevatedButton(
         onPressed: null,
-        child: Text(AppStrings.eventEnded),
+        child: Text('Event Ended'),
       );
     }
 
@@ -339,14 +338,14 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         children: [
           const ElevatedButton(
             onPressed: null,
-            child: Text(AppStrings.registered),
+            child: Text('Registered ✓'),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: isBusy
                 ? null
                 : () => cancel(event['name'] as String? ?? ''),
-            child: const Text(AppStrings.cancelRegistration),
+            child: const Text('Cancel Registration'),
           ),
         ],
       );
@@ -355,7 +354,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     if (full) {
       return const ElevatedButton(
         onPressed: null,
-        child: Text(AppStrings.eventFull),
+        child: Text('Event Full'),
       );
     }
 
@@ -367,16 +366,16 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               width: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Text(AppStrings.register),
+          : const Text('Register'),
     );
   }
 
   String _capacityLabel(int capacity, int registeredCount) {
     final left = remainingSlots(capacity, registeredCount);
     if (left < 0) {
-      return AppStrings.unlimitedSlots;
+      return 'Unlimited slots';
     }
-    return '$left ${AppStrings.slotsLeft}';
+    return '$left slots left';
   }
 
   Widget _iconRow(IconData icon, String text) {

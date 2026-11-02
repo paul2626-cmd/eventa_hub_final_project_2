@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../helpers/error_helpers.dart';
-import '../strings.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -69,7 +68,7 @@ class _SignUpPageState extends State<SignUpPage> {
           firestore.collection('studentNumbers').doc(studentNumber),
         );
         if (numberDoc.exists) {
-          throw Exception(AppStrings.studentNumberTaken);
+          throw Exception('That student number is already registered.');
         }
 
         transaction.set(firestore.collection('users').doc(uid), {
@@ -118,7 +117,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.signUpTitle), centerTitle: true),
+      appBar: AppBar(title: const Text('Create account'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -130,12 +129,12 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: firstNameField,
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
-                  labelText: AppStrings.firstNameLabel,
+                  labelText: 'First name',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return AppStrings.firstNameRequired;
+                    return 'Enter your first name.';
                   }
                   return null;
                 },
@@ -145,12 +144,12 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: lastNameField,
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
-                  labelText: AppStrings.lastNameLabel,
+                  labelText: 'Last name',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return AppStrings.lastNameRequired;
+                    return 'Enter your last name.';
                   }
                   return null;
                 },
@@ -164,14 +163,14 @@ class _SignUpPageState extends State<SignUpPage> {
                   LengthLimitingTextInputFormatter(10),
                 ],
                 decoration: const InputDecoration(
-                  labelText: AppStrings.studentNumberLabel,
+                  labelText: 'Student number',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   // Exactly 10 digits.
                   final pattern = RegExp(r'^\d{10}$');
                   if (value == null || !pattern.hasMatch(value.trim())) {
-                    return AppStrings.invalidStudentNumber;
+                    return 'Student number must be exactly 10 digits.';
                   }
                   return null;
                 },
@@ -185,14 +184,14 @@ class _SignUpPageState extends State<SignUpPage> {
                   LengthLimitingTextInputFormatter(13),
                 ],
                 decoration: const InputDecoration(
-                  labelText: AppStrings.contactNumberLabel,
+                  labelText: 'Contact number',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   // 10 to 13 digits.
                   final pattern = RegExp(r'^\d{10,13}$');
                   if (value == null || !pattern.hasMatch(value.trim())) {
-                    return AppStrings.invalidContactNumber;
+                    return 'Contact number must be 10 to 13 digits.';
                   }
                   return null;
                 },
@@ -202,14 +201,15 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: emailField,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
-                  labelText: AppStrings.schoolEmailLabel,
+                  labelText: 'School email or Gmail',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  // Gmail or a school address that ends in .edu / .edu.ph.
-                  final pattern = RegExp(r'^[\w.+-]+@(gmail\.com|[\w-]+(\.[\w-]+)*\.edu(\.ph)?)$');
-                  if (value == null || !pattern.hasMatch(value.trim().toLowerCase())) {
-                    return AppStrings.invalidEmail;
+                  if (value == null || value.trim().isEmpty) {
+                    return 'This field is required.';
+                  }
+                  if (!value.contains('@')) {
+                    return 'Enter a valid email.';
                   }
                   return null;
                 },
@@ -219,10 +219,10 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: passwordField,
                 obscureText: obscurePassword,
                 decoration: InputDecoration(
-                  labelText: AppStrings.passwordLabel,
+                  labelText: 'Password',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    tooltip: obscurePassword ? AppStrings.showPassword : AppStrings.hidePassword,
+                    tooltip: obscurePassword ? 'Show password' : 'Hide password',
                     icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
                     onPressed: () {
                       setState(() {
@@ -232,12 +232,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 validator: (value) {
-                  // 8+ characters: capital, small, number, special.
-                  final pattern = RegExp(
-                    r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$',
-                  );
-                  if (value == null || !pattern.hasMatch(value)) {
-                    return AppStrings.strongPassword;
+                  // Needs at least one letter and one number.
+                  final hasLetter = RegExp(r'[A-Za-z]').hasMatch(value ?? '');
+                  final hasNumber = RegExp(r'[0-9]').hasMatch(value ?? '');
+                  if (!hasLetter || !hasNumber) {
+                    return 'Password must contain a letter and a number.';
                   }
                   return null;
                 },
@@ -247,10 +246,10 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: confirmField,
                 obscureText: obscureConfirm,
                 decoration: InputDecoration(
-                  labelText: AppStrings.confirmPasswordLabel,
+                  labelText: 'Confirm password',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    tooltip: obscureConfirm ? AppStrings.showPassword : AppStrings.hidePassword,
+                    tooltip: obscureConfirm ? 'Show password' : 'Hide password',
                     icon: Icon(obscureConfirm ? Icons.visibility_off : Icons.visibility),
                     onPressed: () {
                       setState(() {
@@ -261,7 +260,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 validator: (value) {
                   if (value != passwordField.text) {
-                    return AppStrings.passwordMismatch;
+                    return 'Passwords do not match.';
                   }
                   return null;
                 },
@@ -275,7 +274,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text(AppStrings.createAccount),
+                    : const Text('Create account'),
               ),
             ],
           ),

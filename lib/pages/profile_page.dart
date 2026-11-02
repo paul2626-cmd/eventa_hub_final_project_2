@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../services/notification_service.dart';
-import '../strings.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -14,7 +13,7 @@ class ProfilePage extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return const Center(child: Text(AppStrings.appName));
+      return const Center(child: Text('EventHub'));
     }
 
     return ListView(
@@ -24,7 +23,7 @@ class ProfilePage extends StatelessWidget {
         const Icon(Icons.account_circle, size: 80),
         const SizedBox(height: 8),
         Text(
-          user.displayName ?? AppStrings.profileTab,
+          user.displayName ?? 'Profile',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleLarge,
         ),
@@ -44,7 +43,7 @@ class ProfilePage extends StatelessWidget {
             final lead = data?['reminderLeadMinutes'] ?? 60;
             return ListTile(
               leading: const Icon(Icons.notifications_active_outlined),
-              title: Text(AppStrings.reminderLead(lead as int)),
+              title: Text('Reminder lead time: ${lead as int} minutes'),
             );
           },
         ),
@@ -57,7 +56,7 @@ class ProfilePage extends StatelessWidget {
                 enabled ? Icons.notifications : Icons.notifications_off,
               ),
               title: Text(
-                enabled ? AppStrings.notificationsOn : AppStrings.notificationsOff,
+                enabled ? 'Notifications: allowed' : 'Notifications: not allowed',
               ),
             );
           },
@@ -68,7 +67,7 @@ class ProfilePage extends StatelessWidget {
             FirebaseAuth.instance.signOut();
           },
           icon: const Icon(Icons.logout),
-          label: const Text(AppStrings.logout),
+          label: const Text('Log out'),
         ),
       ],
     );

@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../helpers/date_helpers.dart';
-import '../strings.dart';
 import 'event_details_page.dart';
 
 class EventListPage extends StatefulWidget {
@@ -16,7 +15,7 @@ class EventListPage extends StatefulWidget {
 
 class _EventListPageState extends State<EventListPage> {
   static const categories = [
-    AppStrings.allCategory,
+    'All',
     'Academic',
     'Sports',
     'Seminar',
@@ -24,7 +23,7 @@ class _EventListPageState extends State<EventListPage> {
     'Entertainment',
   ];
 
-  String selectedCategory = AppStrings.allCategory;
+  String selectedCategory = 'All';
   late Stream<QuerySnapshot<Map<String, dynamic>>> eventsStream;
 
   // Set from a real server read, so the banner never guesses from metadata.
@@ -116,7 +115,7 @@ class _EventListPageState extends State<EventListPage> {
 
               final allDocs = snapshot.data?.docs ?? [];
               final docs = allDocs.where((doc) {
-                if (selectedCategory == AppStrings.allCategory) {
+                if (selectedCategory == 'All') {
                   return true;
                 }
                 return doc.data()['category'] == selectedCategory;
@@ -137,7 +136,7 @@ class _EventListPageState extends State<EventListPage> {
                         color: Theme.of(context).colorScheme.secondaryContainer,
                         padding: const EdgeInsets.all(8),
                         child: const Text(
-                          AppStrings.offlineNotice,
+                          'You are offline. Showing saved events.',
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -173,11 +172,11 @@ class _EventListPageState extends State<EventListPage> {
         children: [
           const Icon(Icons.error_outline, size: 48),
           const SizedBox(height: 8),
-          const Text(AppStrings.couldNotLoadEvents),
+          const Text('Could not load events.'),
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: refresh,
-            child: const Text(AppStrings.retry),
+            child: const Text('Retry'),
           ),
         ],
       ),
@@ -194,12 +193,12 @@ class _EventListPageState extends State<EventListPage> {
             const Icon(Icons.event_busy, size: 56),
             const SizedBox(height: 12),
             Text(
-              AppStrings.noUpcomingEvents,
+              'No upcoming events',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
             const Text(
-              AppStrings.noUpcomingEventsHint,
+              'Check back later for new school events.',
               textAlign: TextAlign.center,
             ),
           ],
@@ -212,7 +211,7 @@ class _EventListPageState extends State<EventListPage> {
     final event = doc.data();
     final startAt = (event['startAt'] as Timestamp).toDate();
     final imageUrl = event['imageUrl'] as String? ?? '';
-    final category = event['category'] as String? ?? AppStrings.unknownCategory;
+    final category = event['category'] as String? ?? 'Uncategorized';
 
     return Card(
       clipBehavior: Clip.antiAlias,

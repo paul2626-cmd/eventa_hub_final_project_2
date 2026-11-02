@@ -7,7 +7,6 @@ import '../helpers/date_helpers.dart';
 import '../helpers/error_helpers.dart';
 import '../services/notification_service.dart';
 import '../services/registration_service.dart';
-import '../strings.dart';
 import 'event_details_page.dart';
 
 class MyEventsPage extends StatefulWidget {
@@ -47,8 +46,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
         children: [
           const TabBar(
             tabs: [
-              Tab(text: AppStrings.upcomingTab),
-              Tab(text: AppStrings.historyTab),
+              Tab(text: 'Upcoming'),
+              Tab(text: 'History'),
             ],
           ),
           Expanded(
@@ -64,7 +63,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(AppStrings.couldNotLoadEvents),
+                        const Text('Could not load events.'),
                         const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: () {
@@ -72,7 +71,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                               registrationsStream = newRegistrationsStream();
                             });
                           },
-                          child: const Text(AppStrings.retry),
+                          child: const Text('Retry'),
                         ),
                       ],
                     ),
@@ -132,11 +131,11 @@ class _MyEventsPageState extends State<MyEventsPage> {
             children: [
               const Icon(Icons.event_available, size: 56),
               const SizedBox(height: 12),
-              const Text(AppStrings.noRegistrations, textAlign: TextAlign.center),
+              const Text("You haven't registered for any events yet.", textAlign: TextAlign.center),
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: widget.onBrowse,
-                child: const Text(AppStrings.browseEvents),
+                child: const Text('Browse events'),
               ),
             ],
           ),
@@ -186,7 +185,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                               const Spacer(),
                               IconButton(
                                 icon: const Icon(Icons.cancel_outlined),
-                                tooltip: AppStrings.cancelRegistration,
+                                tooltip: 'Cancel Registration',
                                 onPressed: () => _cancel(data),
                               ),
                             ],
@@ -206,7 +205,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   Widget _buildHistory(List<QueryDocumentSnapshot<Map<String, dynamic>>> docs) {
     if (docs.isEmpty) {
-      return const Center(child: Text(AppStrings.noHistory));
+      return const Center(child: Text('No past events yet.'));
     }
 
     return ListView.builder(
@@ -246,7 +245,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text('${formatEventDate(startAt)} • ${data['venueName'] ?? ''}'),
-                          Text(data['category'] as String? ?? AppStrings.unknownCategory),
+                          Text(data['category'] as String? ?? 'Uncategorized'),
                         ],
                       ),
                     ),
@@ -314,16 +313,16 @@ class _MyEventsPageState extends State<MyEventsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(AppStrings.cancelRegistration),
-          content: Text('${AppStrings.cancelConfirm} ${data['eventName'] ?? ''}?'),
+          title: const Text('Cancel Registration'),
+          content: Text('Cancel your registration for ${data['eventName'] ?? ''}?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text(AppStrings.no),
+              child: const Text('No'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text(AppStrings.yes),
+              child: const Text('Yes'),
             ),
           ],
         );
@@ -342,7 +341,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
       await NotificationService.cancelReminder(eventId);
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text(AppStrings.cancelSuccess)));
+            .showSnackBar(const SnackBar(content: Text('Registration cancelled.')));
       }
     } catch (error) {
       if (mounted) {

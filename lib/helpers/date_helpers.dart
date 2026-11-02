@@ -1,8 +1,6 @@
 // lib/helpers/date_helpers.dart
 import 'package:intl/intl.dart';
 
-import '../strings.dart';
-
 // "Wed, Nov 12, 2026"
 String formatEventDate(DateTime date) {
   return DateFormat('EEE, MMM d, yyyy').format(date);
@@ -26,10 +24,10 @@ String countdownLabel(DateTime startAt, {DateTime? now}) {
   final days = startDay.difference(currentDay).inDays;
 
   if (days == 0) {
-    return AppStrings.today;
+    return 'Today';
   }
   if (days == 1) {
-    return AppStrings.tomorrow;
+    return 'Tomorrow';
   }
-  return AppStrings.inDays(days);
+  return 'In $days days';
 }

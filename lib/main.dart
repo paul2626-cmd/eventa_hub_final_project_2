@@ -7,14 +7,11 @@ import 'firebase_options.dart';
 import 'pages/home_shell.dart';
 import 'pages/login_page.dart';
 import 'services/notification_service.dart';
-import 'strings.dart';
-import 'theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await NotificationService.init();
-  await loadSavedTheme();
   runApp(const MainApp());
 }
 
@@ -23,18 +20,28 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeController,
-      builder: (context, mode, child) {
-        return MaterialApp(
-          title: AppStrings.appName,
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          themeMode: mode,
-          home: const AuthGate(),
-        );
-      },
+    return MaterialApp(
+      title: 'EventHub',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: const Color(0xFFB71920)).copyWith(
+          primary: const Color(0xFFB71920),
+          secondary: const Color(0xFFE6B662),
+          surface: const Color(0xFFFFF9F3),
+          onSurface: const Color(0xFF301B1A),
+          outline: const Color(0xFFE8D9CF),
+          surfaceContainerHighest: const Color(0xFFF1D1CD),
+        ),
+        scaffoldBackgroundColor: const Color(0xFFFFF9F3),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF7F0C11),
+          foregroundColor: Colors.white,
+          centerTitle: true,
+        ),
+      ),
+      home: const AuthGate(),
     );
   }
 }
