@@ -11,6 +11,8 @@ class AppStrings {
   static const noAccount = "Don't have an account? Sign up";
   static const sendResetLink = 'Send reset link';
   static const resetEmailSent = 'Password reset email sent. Check your inbox.';
+  static const showPassword = 'Show password';
+  static const hidePassword = 'Hide password';
 
   // Sign up
   static const signUpTitle = 'Create account';

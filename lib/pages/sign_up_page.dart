@@ -20,6 +20,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final passwordField = TextEditingController();
   final confirmField = TextEditingController();
   bool isLoading = false;
+  bool obscurePassword = true;
+  bool obscureConfirm = true;
 
   @override
   void dispose() {
@@ -112,7 +114,10 @@ class _SignUpPageState extends State<SignUpPage> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  // Hardcoded Gmail-only check.
+                  final pattern = RegExp(r'^[\w.+-]+@gmail\.com$');
+                  if (value == null ||
+                      !pattern.hasMatch(value.trim().toLowerCase())) {
                     return AppStrings.invalidEmail;
                   }
                   return null;
@@ -121,10 +126,25 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: passwordField,
-                obscureText: true,
-                decoration: const InputDecoration(
+                obscureText: obscurePassword,
+                decoration: InputDecoration(
                   labelText: AppStrings.passwordLabel,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    tooltip: obscurePassword
+                        ? AppStrings.showPassword
+                        : AppStrings.hidePassword,
+                    icon: Icon(
+                      obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.length < 6) {
@@ -136,10 +156,25 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: confirmField,
-                obscureText: true,
-                decoration: const InputDecoration(
+                obscureText: obscureConfirm,
+                decoration: InputDecoration(
                   labelText: AppStrings.confirmPasswordLabel,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    tooltip: obscureConfirm
+                        ? AppStrings.showPassword
+                        : AppStrings.hidePassword,
+                    icon: Icon(
+                      obscureConfirm
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        obscureConfirm = !obscureConfirm;
+                      });
+                    },
+                  ),
                 ),
                 validator: (value) {
                   if (value != passwordField.text) {

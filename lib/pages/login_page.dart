@@ -18,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final emailField = TextEditingController();
   final passwordField = TextEditingController();
   bool isLoading = false;
+  bool obscurePassword = true;
 
   @override
   void dispose() {
@@ -139,7 +140,10 @@ class _LoginPageState extends State<LoginPage> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  // Hardcoded Gmail-only check.
+                  final pattern = RegExp(r'^[\w.+-]+@gmail\.com$');
+                  if (value == null ||
+                      !pattern.hasMatch(value.trim().toLowerCase())) {
                     return AppStrings.invalidEmail;
                   }
                   return null;
@@ -148,10 +152,25 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: passwordField,
-                obscureText: true,
-                decoration: const InputDecoration(
+                obscureText: obscurePassword,
+                decoration: InputDecoration(
                   labelText: AppStrings.passwordLabel,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    tooltip: obscurePassword
+                        ? AppStrings.showPassword
+                        : AppStrings.hidePassword,
+                    icon: Icon(
+                      obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
