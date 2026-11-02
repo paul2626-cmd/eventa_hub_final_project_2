@@ -62,13 +62,6 @@ class _HomeShellState extends State<HomeShell> {
       appBar: AppBar(
         title: Text(_title()),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: AppStrings.retry,
-            onPressed: syncReminders,
-          ),
-        ],
       ),
       drawer: NavbarMenu(
         onOpenProfile: () {
