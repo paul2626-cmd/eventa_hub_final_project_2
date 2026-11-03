@@ -20,11 +20,23 @@ class MyEventsPage extends StatefulWidget {
 
 class _MyEventsPageState extends State<MyEventsPage> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> registrationsStream;
+  late Stream<Set<String>> ongoingEventIdsStream;
 
   @override
   void initState() {
     super.initState();
     registrationsStream = newRegistrationsStream();
+    ongoingEventIdsStream = newOngoingEventIdsStream();
+  }
+
+  // Live list of events that have not ended yet. Registrations store a copy of
+  // the old end date, so the Upcoming/History split must use the event itself.
+  Stream<Set<String>> newOngoingEventIdsStream() {
+    return FirebaseFirestore.instance
+        .collection('events')
+        .where('endAt', isGreaterThan: Timestamp.now())
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toSet());
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> newRegistrationsStream() {
@@ -69,6 +81,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                           onPressed: () {
                             setState(() {
                               registrationsStream = newRegistrationsStream();
+                              ongoingEventIdsStream = newOngoingEventIdsStream();
                             });
                           },
                           child: const Text('Retry'),
@@ -79,10 +92,23 @@ class _MyEventsPageState extends State<MyEventsPage> {
                 }
 
                 final docs = snapshot.data?.docs ?? [];
-                final upcoming = _upcoming(docs);
-                final history = _history(docs);
 
-                return TabBarView(children: [_buildUpcoming(upcoming), _buildHistory(history)]);
+                return StreamBuilder<Set<String>>(
+                  stream: ongoingEventIdsStream,
+                  builder: (context, ongoingSnapshot) {
+                    if (ongoingSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final ongoingIds = ongoingSnapshot.data ?? <String>{};
+                    final upcoming = _upcoming(docs, ongoingIds);
+                    final history = _history(docs, ongoingIds);
+
+                    return TabBarView(
+                      children: [_buildUpcoming(upcoming), _buildHistory(history)],
+                    );
+                  },
+                );
               },
             ),
           ),
@@ -93,11 +119,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _upcoming(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+    Set<String> ongoingIds,
   ) {
     final result =
         docs.where((doc) {
-          final endAt = (doc.data()['eventEndAt'] as Timestamp).toDate();
-          return endAt.isAfter(DateTime.now());
+          final eventId = doc.data()['eventId'] as String? ?? '';
+          return ongoingIds.contains(eventId);
         }).toList()..sort((a, b) {
           final aStart = (a.data()['eventStartAt'] as Timestamp).toDate();
           final bStart = (b.data()['eventStartAt'] as Timestamp).toDate();
@@ -108,11 +135,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _history(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+    Set<String> ongoingIds,
   ) {
     final result =
         docs.where((doc) {
-          final endAt = (doc.data()['eventEndAt'] as Timestamp).toDate();
-          return !endAt.isAfter(DateTime.now());
+          final eventId = doc.data()['eventId'] as String? ?? '';
+          return !ongoingIds.contains(eventId);
         }).toList()..sort((a, b) {
           final aEnd = (a.data()['eventEndAt'] as Timestamp).toDate();
           final bEnd = (b.data()['eventEndAt'] as Timestamp).toDate();
